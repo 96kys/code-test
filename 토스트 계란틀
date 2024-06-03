@@ -1,0 +1,115 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <queue>
+#include <algorithm>
+
+using namespace std;
+
+bool bfs(vector<vector<int>> &matrix, int n, int L, int R) {
+    //////////////////////////////////////////////////////////////
+    // 인접한 계란틀의 계란양을 확인하고 계란틀을 제거
+
+    // 처음 계란을 평균 맞추기 전 값을 보존 (계란 이동이 없는 경우를 찾기위해)
+    vector<vector<int>> init_matrix = matrix;
+
+    // 상 우 하 좌
+    int dr[4] = {-1, 0, 1, 0};
+    int dc[4] = { 0, 1, 0, -1 };
+
+    // 인접한 계란의 양이 비슷하여 섞이게 될 계란들을 구분하기 위한 변수
+    int same_index = 0;
+    vector<vector<int>> same(n, vector<int>(n, 0));
+
+    // 인접한 영역을 방문 한 적이 있는가에 대한 vector
+    // false: 방문 x, true: 방문 o
+    vector<vector<bool>> visit(n, vector<bool>(n, false)); 
+
+    // row, col 좌표를 가지고 있는 q
+    queue<pair<int, int>> q;
+
+    // 모든 좌표에 대해서 확인
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (!visit[i][j]) {
+                // 방문을 하지 않았다면 해당 좌표를 입력 및 방문 유무 갱신
+                q.push({ i, j });
+                visit[i][j] = true;
+
+                same_index++;
+                same[i][j] = same_index;
+                int sum_eggs = matrix[i][j];
+                int num_cells = 1;
+                vector<pair<int, int>> cells = {{i, j}};
+
+                while (!q.empty()) {
+                    pair<int, int> location = q.front();
+                    int egg_value = matrix[location.first][location.second];
+                    q.pop();
+
+                    for (int dir = 0; dir < 4; dir++) {
+                        // 인접한 계란 찾기
+                        int nr = location.first + dr[dir];
+                        int nc = location.second + dc[dir];
+
+                        if (nr >= 0 && nc >= 0 && nr < n && nc < n && !visit[nr][nc]) {
+                            // 맵 밖에 나가지 않는다면
+
+                            // 이전 위치와 근접한 위치의 계란 량 계산
+                            int diff = abs(matrix[nr][nc] - egg_value);
+
+                            if (diff >= L && diff <= R) {
+                                // 인접한 위치의 값이 L 이상 R 이하라면
+                                
+                                // 해당 위치를 q에 입력하고 방문기록을 갱신
+                                visit[nr][nc] = true;
+                                q.push({ nr, nc });
+
+                                // same값을 갱신해준다.
+                                same[nr][nc] = same_index;
+                                sum_eggs += matrix[nr][nc];
+                                num_cells++;
+                                cells.push_back({nr, nc});
+                            }
+                        }
+                    }
+                }
+
+                // 계란 양의 평균을 구하고 same 배열을 갱신
+                int average_eggs = sum_eggs / num_cells;
+                for (auto &cell : cells) {
+                    matrix[cell.first][cell.second] = average_eggs;
+                }
+            }
+        }
+    }
+
+    // 계란의 변형이 있으면: true 반환, 계란의 변형이 없으면: false 반환
+    return matrix != init_matrix;
+}
+
+int main() {
+    int n, L, R;
+    cin >> n >> L >> R;
+
+    vector<vector<int>> matrix(n, vector<int>(n, 0));
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cin >> matrix[i][j];            
+        }
+    }
+
+    int move_cnt = 0;
+
+    while (true) {
+        if (!bfs(matrix, n, L, R)) {
+            break;
+        }
+        move_cnt++;
+    }
+    
+    cout << move_cnt;
+
+    return 0;
+}
