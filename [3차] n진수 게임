@@ -1,0 +1,56 @@
+#include <string>
+#include <vector>
+#include <queue>
+#include <iostream>
+
+
+using namespace std;
+
+string solution(int n, int t, int m, int p) {
+    string answer = "";
+    int number = 0;
+    int temp_number = 0;
+    vector<int> answer_arr;
+    
+    while(answer_arr.size() < t*m){        
+        vector<int> temp;
+        
+        while(1){
+            temp.push_back(temp_number%n);
+            temp_number = temp_number/n;
+            if(temp_number == 0){
+                break;
+            }
+            
+        }
+        
+        while(!temp.empty()){
+            answer_arr.push_back(temp.back());
+            temp.pop_back();            
+        }     
+        
+        number++;
+        temp_number = number;
+    }
+    
+            
+    for(int i = 0;i<answer_arr.size();i++){
+        cout << answer_arr[i];
+    }
+    
+    
+    int index = 0;
+    for(int i = 0;i<t;i++){
+        int index = (p-1) + (i*m);        
+        if(answer_arr[index] < 10){
+            answer += to_string(answer_arr[index]);
+        }
+        else{
+            char input_char = answer_arr[index] - 10 + 'A';
+            answer += input_char;
+        }        
+    }
+    
+    
+    return answer;
+}
