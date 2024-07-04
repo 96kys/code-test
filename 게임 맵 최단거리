@@ -1,0 +1,56 @@
+#include<vector>
+#include<queue>
+using namespace std;
+
+
+int bfs(vector<vector<int>>& maps){
+    vector<vector<bool>> visit(maps.size(), vector<bool>(maps[0].size(),true));    
+    queue<pair<int, int>> q;
+    queue<int> cnt_num;
+    
+    // 상 하 좌 우
+    int dr[4] = {-1, 1, 0, 0};
+    int dc[4] = {0, 0, -1, 1};
+    int move_cnt = 0;
+    
+    q.push({0,0});
+    cnt_num.push(1);
+    
+    while(!q.empty()){
+        int row = q.front().first;
+        int col = q.front().second;
+        move_cnt = cnt_num.front();
+        q.pop();
+        cnt_num.pop();
+        
+        if(row == maps.size() - 1 && col == maps[0].size() - 1){
+            return move_cnt;
+        }
+        
+        for(int dir = 0; dir < 4; dir++){
+            int nr = row + dr[dir];
+            int nc = col + dc[dir];
+            
+            if(nr >= 0 && nc >= 0 && nr < maps.size() && nc < maps[0].size() && visit[nr][nc] && maps[row][col] == 1){
+                visit[nr][nc] = false;
+                q.push({nr, nc});
+                cnt_num.push(move_cnt + 1);                
+            }
+        }
+        
+        
+    }
+    
+    
+   return -1; 
+}
+
+
+int solution(vector<vector<int> > maps)
+{
+    int answer = 0;
+    
+    answer = bfs(maps);
+    
+    return answer;
+}
